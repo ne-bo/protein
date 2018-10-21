@@ -1,0 +1,48 @@
+{
+    "name": "Protein",
+    "cuda": true,
+    "gpu": 0,
+    "data_loader": {
+        "data_dir": "/home/natasha/protein",
+        "batch_size_train": 128,
+        "batch_size_val": 128,
+        "batch_size_test": 2,
+        "shuffle": true,
+        "drop_last": false
+    },
+    "validation": {
+        "validation_split": 0.1,
+        "shuffle": true
+    },
+
+    "lr_scheduler_type": "ExponentialLR",
+    "lr_scheduler_freq": 5,
+    "lr_scheduler": {
+            "gamma": 0.9
+    },
+ 
+    "optimizer_type": "Adam",
+    "optimizer": {
+        "lr": 0.00001,
+        "weight_decay": 0.001,
+        "amsgrad": true
+    },
+    "loss": "bce",
+    "metrics": ["my_metric", "my_metric2"],
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_freq": 1,
+        "verbosity": 2,
+        "monitor": "loss",
+        "monitor_mode": "min"
+    },
+    "arch": "ProteinModel",
+    "model": {
+
+    },
+    "pack_volume": 5851,
+    "temp_folder": "/home/natasha/temp/protein",
+    "class_number": 28,
+    "sampling": "*uniform"
+}
