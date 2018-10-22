@@ -3,8 +3,8 @@
     "cuda": true,
     "gpu": 0,
     "data_loader": {
-        "data_dir": "/home/natasha/protein",
-        "batch_size_train": 128,
+        "data_dir": "/home/ubuntu/data/protein",
+        "batch_size_train": 120,
         "batch_size_val": 128,
         "batch_size_test": 2,
         "shuffle": true,
@@ -23,16 +23,16 @@
  
     "optimizer_type": "Adam",
     "optimizer": {
-        "lr": 0.00001,
-        "weight_decay": 0.001,
+        "lr": 0.0001,
+        "weight_decay": 0.0001,
         "amsgrad": true
     },
     "loss": "bce",
     "metrics": ["my_metric", "my_metric2"],
     "trainer": {
-        "epochs": 100,
+        "epochs": 50,
         "save_dir": "saved/",
-        "save_freq": 1,
+        "save_freq": 10,
         "verbosity": 2,
         "monitor": "loss",
         "monitor_mode": "min"
@@ -42,7 +42,7 @@
 
     },
     "pack_volume": 5851,
-    "temp_folder": "/home/natasha/temp/protein",
+    "temp_folder": "/home/ubuntu/data/temp/protein",
     "class_number": 28,
     "sampling": "*uniform"
 }

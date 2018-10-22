@@ -68,13 +68,7 @@ def inference(loader, model):
 
     all_outputs = outputs_for_large_dataset(loader, model)
 
-    all_ids = []
-    sample_submission = os.path.join(config['data_loader']['data_dir'], 'sample_submission.csv')
-    with open(sample_submission, 'r') as csv_file:
-        reader = csv.reader(csv_file, delimiter=',', dialect='excel')
-        rows = list(reader)
-        for i, row in tqdm(enumerate(rows[1:])):
-            all_ids.append(row[0])
+    all_ids = get_all_test_ids(config)
 
     predictions = []
     for id, output in tqdm(zip(all_ids, all_outputs)):
@@ -91,13 +85,32 @@ def inference(loader, model):
         csv_file.writelines(rows)
 
 
+def get_all_test_ids(config):
+    return get_all_ids_from_csv(config, csv_filename='sample_submission.csv')
+
+
+def get_all_train_ids(config):
+    return get_all_ids_from_csv(config, csv_filename='train.csv')
+
+
+def get_all_ids_from_csv(config, csv_filename):
+    all_ids = []
+    sample_submission = os.path.join(config['data_loader']['data_dir'], csv_filename)
+    with open(sample_submission, 'r') as csv_file:
+        reader = csv.reader(csv_file, delimiter=',', dialect='excel')
+        rows = list(reader)
+        for i, row in tqdm(enumerate(rows[1:])):
+            all_ids.append(row[0])
+    return all_ids
+
+
 def convert_output_to_prediction(output):
     prediction = ''
     output = output.cpu().numpy()
     indices = np.argsort(output)[::-1][:5]
     print('output(indices)', output[indices])
     for i, class_number in enumerate(indices):
-        if output[class_number] > (1.0/28.0)*5.0 or i==0:
+        if output[class_number] > (1.0 / 28.0) * 2.0 or i == 0:
             prediction = prediction + ' ' + str(class_number)
     prediction = prediction[1:]
     return prediction

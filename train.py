@@ -18,16 +18,16 @@ logging.basicConfig(level=logging.INFO, format='')
 def main(config, resume):
     train_logger = Logger()
 
-    data_loader = ProteinDataLoader(config, name='train')
+    data_loader = ProteinDataLoader(config, name='train', shuffle=True)
     valid_data_loader = None#data_loader.split_validation()
 
-    # model = RetailModel(config, data_loader)
+    # model = RetailModel(config)
     model = NatashaProtein(config=config).cuda()
 
     loss = eval(config['loss'])
     metrics = [eval(metric) for metric in config['metrics']]
 
-    if False:
+    if True:
         trainer = Trainer(model, loss, metrics,
                           resume=resume,
                           config=config,

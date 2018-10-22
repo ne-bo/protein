@@ -14,12 +14,12 @@ class ProteinDataLoader(DataLoader):
     Protein data loading
     """
 
-    def __init__(self, config, name):
+    def __init__(self, config, name, shuffle=False):
         super(ProteinDataLoader, self).__init__(
             dataset=protein_channels.ProteinChannelsDataset(config=config, name=name),
             batch_size=config['data_loader']['batch_size_%s' % name],
             drop_last=config['data_loader']['drop_last'],
-            shuffle=True if name == 'train' else False
+            shuffle=shuffle
         )
         if False:#config['sampling'] == 'uniform' and name == 'train':
             number_of_different_classes_in_batch = 2

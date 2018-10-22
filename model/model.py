@@ -12,14 +12,16 @@ class NatashaProtein(BaseModel):
     def __init__(self, config):
         super(NatashaProtein, self).__init__(config)
         self.channel_to_3 = nn.Conv2d(in_channels=4, out_channels=3, kernel_size=1)
-        self.net = resnet34(pretrained=True)
-        self.net.cnv1 = nn.Conv2d(in_channels=4, out_channels=64,kernel_size=7,stride=2, padding=3, bias=False)
+        self.net = resnet50(pretrained=True)
+        # self.net.cnv1 = nn.Conv2d(in_channels=4, out_channels=64,kernel_size=7,stride=2, padding=3, bias=False)
         num_ftrs = self.net.fc.in_features
         self.net.fc = nn.Linear(num_ftrs, config['class_number'])
         # self.classifier = torch.nn.Sigmoid()
+        print(self.net)
 
     def forward(self, x):
         x = self.channel_to_3(x)
+        # print('x after channel_to_3 ', x.shape)
         output = self.net(x)
         #output = self.classifier(output)
         return output
