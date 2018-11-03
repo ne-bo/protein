@@ -14,14 +14,14 @@ class ProteinDataLoader(DataLoader):
     Protein data loading
     """
 
-    def __init__(self, config, name, shuffle=False):
+    def __init__(self, config, name, shuffle=False, evaluation=True):
         super(ProteinDataLoader, self).__init__(
             dataset=protein_channels.ProteinChannelsDataset(config=config, name=name),
             batch_size=config['data_loader']['batch_size_%s' % name],
-            drop_last=config['data_loader']['drop_last'],
+            drop_last=False,
             shuffle=shuffle
         )
-        if False:#config['sampling'] == 'uniform' and name == 'train':
+        if config['sampling'] == 'uniform' and name == 'train' and not evaluation:
             number_of_different_classes_in_batch = 2
             batches_number = self.dataset.__len__() * number_of_different_classes_in_batch // self.batch_size
 

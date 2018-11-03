@@ -1,9 +1,9 @@
 import torch
-
+import numpy as np
 from base import BaseModel
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import resnet34, resnet50
+from torchvision.models import resnet34, resnet50, resnet152, densenet121
 
 from model.modules.spoc_layer import Spoc, create_initial_pca_matrix_for_dataset
 
@@ -27,7 +27,7 @@ class NatashaProtein(BaseModel):
         return output
 
 
-class RetailModel(BaseModel):
+class RetrievalModel(BaseModel):
     def __init__(self, config, loader_for_pca_initialization):
         """
         here we cut off this tail of Resnet in order to replace it with the Spoc layer
@@ -41,14 +41,14 @@ class RetailModel(BaseModel):
         \textit{Deep Image Retrieval: Learning global representations for image search}.
         2016
         """
-        super(RetailModel, self).__init__(config)
+        super(RetrievalModel, self).__init__(config)
         self.config = config
         self.desired_dimension = self.config['model']['desired_embedding_dimension']
 
+        self.channel_to_3 = nn.Conv2d(in_channels=4, out_channels=3, kernel_size=1)
         basic_net = resnet50(pretrained=True)
-        self.net.cnv1 = nn.Conv2d(in_channels=4, out_channels=64,kernel_size=7,stride=2, padding=3, bias=False)
 
-        self.representation_network = nn.Sequential(*list(basic_net.children())[:8])
+        self.representation_network = nn.Sequential(self.channel_to_3, *list(basic_net.children())[:8])
         self.train_loader = loader_for_pca_initialization
         initial_pca_matrix, initial_singular_values = create_initial_pca_matrix_for_dataset(
             loader_for_pca_initialization,
@@ -63,4 +63,10 @@ class RetailModel(BaseModel):
     def forward(self, x):
         x = self.representation_network(x)
         x = self.spoc_layer(x)
+
+        index_to_test = np.random.randint(low=0, high=x.shape[0])
+        # print('x[index_to_test] ', x[index_to_test])
+        # assert np.abs(np.linalg.norm(x[index_to_test].detach().cpu().numpy()) - 1.0) <= 10e-1, \
+        #     'Spoc should contain normalized data! ' \
+        #     'But np.linalg.norm(x[%d] = %.10e' % (index_to_test, np.linalg.norm(x[index_to_test].detach().cpu().numpy()))
         return x

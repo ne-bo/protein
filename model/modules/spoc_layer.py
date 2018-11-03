@@ -5,7 +5,7 @@ import torch
 from sklearn.decomposition import PCA
 from torch import nn as nn
 
-from inference import outputs_for_large_dataset
+from inference import outputs_for_large_dataset, read_inference_results_from_disk, save_inference_results_on_disk
 from model.modules.l2_normalization import L2Normalization
 
 
@@ -43,7 +43,13 @@ def create_new_pca_matrix_for_dataset(desired_dimension: int, network, train_loa
     print('Creating initial PCA matrix')
     spoc_before_pca = SpocBeforeDimensionReduction()
 
-    all_outputs = outputs_for_large_dataset(train_loader, network)
+    batches_number = save_inference_results_on_disk(train_loader, network, name='train', pack_volume=10)
+
+    # This is code for super large dataset to create a pca matrix using only part of all batches
+    # after the inference is already done and stored on the disk
+    # here we just read as many batches as we can
+    path = os.path.join(config['temp_folder'], 'train', '')
+    all_outputs = read_inference_results_from_disk(config, batches_number=10, name='train', pack_volume=10)
 
     all_outputs = spoc_before_pca(all_outputs)
     pca_matrix, singular_values = learn_pca_matrix_for_spocs_with_sklearn(all_outputs.data, desired_dimension)

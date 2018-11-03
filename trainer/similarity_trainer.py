@@ -6,7 +6,7 @@ from base import BaseTrainer
 from utils.util import freeze_network, unfreeze_network
 
 
-class Trainer(BaseTrainer):
+class SimilarityTrainer(BaseTrainer):
     """
     Trainer class
 
@@ -17,7 +17,7 @@ class Trainer(BaseTrainer):
 
     def __init__(self, model, loss, metrics, resume, config,
                  data_loader, valid_data_loader=None, train_logger=None):
-        super(Trainer, self).__init__(model, loss, metrics, resume, config, train_logger)
+        super(SimilarityTrainer, self).__init__(model, loss, metrics, resume, config, train_logger)
         self.config = config
         self.batch_size = data_loader.batch_size
         self.data_loader = data_loader

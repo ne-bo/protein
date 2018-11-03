@@ -20,6 +20,22 @@ def focal(y_input, y_target):
     return loss(y_input, y_target)
 
 
+def f1_loss(logits, labels):
+    __small_value = 1e-6
+    beta = 1
+    batch_size = logits.size()[0]
+    p = F.sigmoid(logits)
+    l = labels
+    num_pos = torch.sum(p, 1) + __small_value
+    num_pos_hat = torch.sum(l, 1) + __small_value
+    tp = torch.sum(l * p, 1)
+    precise = tp / num_pos
+    recall = tp / num_pos_hat
+    fs = (1 + beta * beta) * precise * recall / (beta * beta * precise + recall + __small_value)
+    loss = fs.sum() / batch_size
+    return 1 - loss
+
+
 class FocalLoss(torch.nn.Module):
     def __init__(self, gamma=2):
         super().__init__()
@@ -66,6 +82,15 @@ class FocalLossMultiLabel(torch.nn.Module):
         return loss.mean()
 
 
+def get_signs_matrix_for_several_labels(target_1, target_2):
+    matrix = torch.matmul(target_1, torch.transpose(target_2, dim0=0, dim1=1))
+    # here we have not only 1 and 0
+    # if we have 2 classes in common then we have 2 instead of 1
+    # should replace
+    matrix = matrix.gt(0)
+    return matrix.byte()
+
+
 class HistogramLoss(torch.nn.Module):
     """
            Evgeniya Ustinova, Victor Lempitsky
@@ -94,14 +119,11 @@ class HistogramLoss(torch.nn.Module):
         return s_repeat.sum(1) / size.float()
 
     def forward(self, input_1, input_2, target_1, target_2):
-        with torch.cuda.device(self.config['gpu']):
+        with torch.cuda.device(0):
             target_size = target_1.size()[0]
-            print('target_size ', target_size)
-            print('target_1 ', target_1, target_1.shape)
 
             # signs_matrix = (target_1.repeat(target_size, 1) == target_2.view(-1, 1).repeat(1, target_size)).data
-            signs_matrix = ((target_1.repeat(target_size, 1)* target_2.view(-1, 1).repeat(1, target_size)).sum() > 0.0).data
-            print('signs_matrix ', signs_matrix, signs_matrix.shape)
+            signs_matrix = get_signs_matrix_for_several_labels(target_1, target_2)
 
             cosine_similarities = torch.mm(input_1, input_2.transpose(0, 1))
 

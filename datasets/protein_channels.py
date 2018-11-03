@@ -11,7 +11,7 @@ from torch.utils.data import Dataset
 from tqdm import tqdm
 
 from albumentations import (
-    HorizontalFlip, IAAPerspective, ShiftScaleRotate, CLAHE, RandomRotate90,
+    HorizontalFlip, VerticalFlip, IAAPerspective, ShiftScaleRotate, CLAHE, RandomRotate90,
     Transpose, ShiftScaleRotate, Blur, OpticalDistortion, GridDistortion, HueSaturationValue,
     IAAAdditiveGaussianNoise, GaussNoise, MotionBlur, MedianBlur, IAAPiecewiseAffine,
     IAASharpen, IAAEmboss, RandomContrast, RandomBrightness, Flip, OneOf, Compose, RandomCrop
@@ -20,8 +20,10 @@ from albumentations import (
 
 def strong_aug(p=.5, config=None):
     return Compose([
-        RandomCrop(height=224, width=224, p=1.0),
         HorizontalFlip(p=0.5),
+        VerticalFlip(p=0.5),
+        RandomRotate90(p=0.5),
+        Transpose(p=0.5),
         OneOf([
             IAAAdditiveGaussianNoise(),
             GaussNoise(),
@@ -45,12 +47,13 @@ def strong_aug(p=.5, config=None):
             RandomBrightness(),
         ], p=0.3),
         HueSaturationValue(p=0.3),
+        RandomCrop(height=224, width=224, p=1.0),
     ])
 
 
 def tta_aug(p=.5, config=None):
     return Compose([
-        RandomCrop(height=224, width=224, p=1.0),
+        # RandomCrop(height=224, width=224, p=1.0),
         # HorizontalFlip(),
         # OneOf([
         #     IAAAdditiveGaussianNoise(),
@@ -132,19 +135,26 @@ class ProteinChannelsDataset(Dataset):
         return images, targets
 
     def get_images_from_csv(self, path_to_csv, train_or_test):
+        rare_classes = [27, 15, 10, 8, 20, 17, 24, 26, 16, 13, 12, 22, 18, 6, 14]
         images = []
         targets = []
         with open(path_to_csv, 'r') as csv_file:
             reader = csv.reader(csv_file, delimiter=',', dialect='excel')
             rows = list(reader)
             for i, row in tqdm(enumerate(rows[1:])):
-                images.append(os.path.join(self.config['data_loader']['data_dir'], train_or_test, row[0]))
+                image = os.path.join(self.config['data_loader']['data_dir'], train_or_test, row[0])
+                images.append(image)
                 targets_list = [int(i) for i in row[1].split(' ')]
                 self.labels.append(targets_list)
                 target = np.zeros(self.config['class_number'])
                 target[targets_list] = 1.0
                 targets.append(target)
-        # print('images ', images)
-        # print('targets ', targets)
+
+                if set(targets_list).intersection(rare_classes):
+                    for additional_image in range(1):
+                        images.append(image)
+                        targets.append(target)
+        print('images ', len(images))
+        print('targets ', len(targets))
 
         return images, targets
