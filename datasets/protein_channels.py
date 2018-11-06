@@ -54,7 +54,10 @@ def strong_aug(p=.5, config=None):
 def tta_aug(p=.5, config=None):
     return Compose([
         # RandomCrop(height=224, width=224, p=1.0),
-        # HorizontalFlip(),
+        # HorizontalFlip(p=0.5),
+        # VerticalFlip(p=0.5),
+        # RandomRotate90(p=0.5),
+        # Transpose(p=0.5),
         # OneOf([
         #     IAAAdditiveGaussianNoise(),
         #     GaussNoise(),
@@ -150,10 +153,10 @@ class ProteinChannelsDataset(Dataset):
                 target[targets_list] = 1.0
                 targets.append(target)
 
-                if set(targets_list).intersection(rare_classes):
-                    for additional_image in range(1):
-                        images.append(image)
-                        targets.append(target)
+                # if set(targets_list).intersection(rare_classes):
+                #     for additional_image in range(1):
+                #         images.append(image)
+                #         targets.append(target)
         print('images ', len(images))
         print('targets ', len(targets))
 

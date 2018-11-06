@@ -55,9 +55,11 @@ def main(config, resume):
 
     print('Create test loader')
     test_data_loader = ProteinDataLoader(config, name='test')
-    checkpoint_for_model = torch.load('saved/Protein/model_best')
+    checkpoint_for_model = torch.load('saved/Protein/model_best.pth.tar')
+    # checkpoint_for_model = torch.load('saved/Protein/model_best-resnent-50-lb-0.383.pth.tar')
     # checkpoint_for_model = torch.load('saved/NatashaSegmentation/model_best-resnet-34-wo-depth-bce-0.0063.pth.tar')
     model.load_state_dict(checkpoint_for_model['state_dict'])
+    # print(model.state_dict())
     model.eval()
 
     print('Do inference')

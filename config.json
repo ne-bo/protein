@@ -4,7 +4,7 @@
     "gpu": 0,
     "data_loader": {
         "data_dir": "/home/ubuntu/data/protein",
-        "batch_size_train": 100,
+        "batch_size_train": 72,
         "batch_size_val": 128,
         "batch_size_test": 2,
         "shuffle": true,
@@ -16,7 +16,7 @@
     },
 
     "lr_scheduler_type": "ExponentialLR",
-    "lr_scheduler_freq": 5,
+    "lr_scheduler_freq": 10,
     "lr_scheduler": {
             "gamma": 0.9
     },

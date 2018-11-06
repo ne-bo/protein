@@ -3,7 +3,7 @@ import numpy as np
 from base import BaseModel
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import resnet34, resnet50, resnet152, densenet121
+from torchvision.models import resnet34, resnet50, resnet152, densenet121, vgg16
 
 from model.modules.spoc_layer import Spoc, create_initial_pca_matrix_for_dataset
 
@@ -12,18 +12,24 @@ class NatashaProtein(BaseModel):
     def __init__(self, config):
         super(NatashaProtein, self).__init__(config)
         self.channel_to_3 = nn.Conv2d(in_channels=4, out_channels=3, kernel_size=1)
-        self.net = resnet50(pretrained=True)
-        # self.net.cnv1 = nn.Conv2d(in_channels=4, out_channels=64,kernel_size=7,stride=2, padding=3, bias=False)
-        num_ftrs = self.net.fc.in_features
-        self.net.fc = nn.Linear(num_ftrs, config['class_number'])
-        # self.classifier = torch.nn.Sigmoid()
+
+        # self.net = resnet50(pretrained=True)
+        # num_ftrs = self.net.fc.in_features
+        # self.net.fc = nn.Linear(num_ftrs, config['class_number'])
+
+        # self.net = densenet121(pretrained=True)
+        # num_ftrs = self.net.classifier.in_features
+        # self.net.classifier = nn.Linear(in_features=num_ftrs, out_features=config['class_number'])
+
+        self.net = vgg16(pretrained=True)
+        self.net.classifier.add_module(module=nn.Linear(in_features=1000, out_features=config['class_number']))
         print(self.net)
 
     def forward(self, x):
         x = self.channel_to_3(x)
         # print('x after channel_to_3 ', x.shape)
         output = self.net(x)
-        #output = self.classifier(output)
+
         return output
 
 

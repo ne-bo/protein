@@ -69,7 +69,7 @@ def save_inference_results_on_disk(loader, network, name, pack_volume=None, cpu=
         outputs5 = network(images[:, :, 144:368, 144:368]).detach()
         outputs = (outputs1 + outputs2 + outputs3 + outputs4 + outputs5) / 5.0
 
-        if not config['similarity_approach']:
+        if True:  # not config['similarity_approach']:
             outputs = torch.nn.Sigmoid()(outputs)
 
         all_outputs = torch.cat((all_outputs, outputs.data), dim=0)
@@ -110,6 +110,11 @@ def convert_output_to_prediction(output):
     output = output.cpu().numpy()
     indices = np.argsort(output)[::-1][:5]
     print('output(indices)', output[indices])
+
+    # th_t = np.array([0.565,0.39,0.55,0.345,0.33,0.39,0.33,0.45,0.38,0.39,
+    #                0.34,0.42,0.31,0.38,0.49,0.50,0.38,0.43,0.46,0.40,
+    #                0.39,0.505,0.37,0.47,0.41,0.545,0.32,0.1])
+
     for i, class_number in enumerate(indices):
         if output[class_number] > (1.0 / 28.0) * 2.0 or i == 0:
             prediction = prediction + ' ' + str(class_number)
